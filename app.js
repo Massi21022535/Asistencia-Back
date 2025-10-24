@@ -5,6 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const db = require("./db");
 const { verificarToken, soloRol } = require("./middlewares/auth"); //para validar usuario y roles
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 //importo las modulos con las rutas. cada una tiene sus endpoints
 const usuariosRoutes = require("./routes/usuarios");
@@ -12,7 +13,10 @@ const profesorRoutes = require("./routes/profesor");
 const asistenciaRoutes = require("./routes/asistencia");
 const directorRoutes = require("./routes/director");
 
-app.use(cors());
+const corsOptions = {
+  origin: FRONTEND_URL 
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 //monto los routers en las rutas base
