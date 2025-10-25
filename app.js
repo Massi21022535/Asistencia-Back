@@ -5,7 +5,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const db = require("./db");
 const { verificarToken, soloRol } = require("./middlewares/auth"); //para validar usuario y roles
-const FRONTEND_URL = process.env.FRONTEND_URL;
 
 //importo las modulos con las rutas. cada una tiene sus endpoints
 const usuariosRoutes = require("./routes/usuarios");
@@ -14,7 +13,7 @@ const asistenciaRoutes = require("./routes/asistencia");
 const directorRoutes = require("./routes/director");
 
 const corsOptions = {
-  origin: FRONTEND_URL 
+  origin: process.env.FRONTEND_URL 
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -26,11 +25,11 @@ app.use("/profesor", profesorRoutes);
 app.use("/usuarios", usuariosRoutes);
 
 //prueba del backend
-//app.get("/", (req, res) => {
-  //res.send("Servidor Funcionando");
-//});
+app.get("/", (req, res) => {
+  res.send("Servidor Funcionando");
+});
 
 //arrancar el servidor
-//app.listen(PORT, () => {
-  //console.log(`Servidor corriendo en http://localhost:${PORT}`);
-//});
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
