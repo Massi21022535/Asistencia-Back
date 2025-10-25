@@ -26,11 +26,11 @@ app.use("/profesor", profesorRoutes);
 app.use("/usuarios", usuariosRoutes);
 
 //prueba del backend
-app.get("/", (req, res) => {
-  res.send("Servidor Funcionando");
-});
+//app.get("/", (req, res) => {
+  //res.send("Servidor Funcionando");
+//});
 
 //arrancar el servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+//app.listen(PORT, () => {
+  //console.log(`Servidor corriendo en http://localhost:${PORT}`);
+//});
