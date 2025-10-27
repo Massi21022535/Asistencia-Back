@@ -36,6 +36,17 @@ router.post("/marcar", async (req, res) => {
 
     const alumnoId = alumnos[0].id;
 
+    const [yaAsistio] = await pool.execute(
+      `SELECT id FROM asistencias WHERE alumno_id = ? AND clase_id = ?`,
+      [alumnoId, claseId]
+    );
+
+    if (yaAsistio.length > 0) {
+      return res
+      .status(409)
+      .json({error: "Ya registraste tu asistencia en esta clase"});
+    }
+
     //registrar asistencia. se inserta la asistencia en la tabla, si ya lo hizo se ignora.
     await pool.execute(
       `INSERT IGNORE INTO asistencias (alumno_id, clase_id) VALUES (?, ?)`,
