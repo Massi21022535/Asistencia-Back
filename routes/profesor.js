@@ -84,7 +84,7 @@ router.post(
   async (req, res) => {
     const comisionId = req.params.id;
     const fecha = new Date();
-    const { manual } = req.body;
+    const { manual, contenido } = req.body;
 
     try {
       // verifico acceso del profesor
@@ -104,8 +104,8 @@ router.post(
       }
 
       const [result] = await pool.execute(
-        `INSERT INTO clases (comision_id, fecha, qr_token) VALUES (?, ?, ?)`,
-        [comisionId, fecha, qrToken]
+        `INSERT INTO clases (comision_id, fecha, qr_token, contenido) VALUES (?, ?, ?, ?)`,
+        [comisionId, fecha, qrToken, contenido || null]
       );
 
       const nuevaClaseId = result.insertId;
