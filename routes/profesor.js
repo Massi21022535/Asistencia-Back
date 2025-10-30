@@ -193,7 +193,7 @@ router.get(
 
       const [clases] = await pool.execute(
         //obtengo las clases de esa comision ordenadas por fecha
-        `SELECT id, fecha, qr_token, created_at 
+        `SELECT id, fecha, qr_token, contenido, created_at 
        FROM clases 
        WHERE comision_id = ?
        ORDER BY fecha DESC`,
