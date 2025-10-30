@@ -274,4 +274,53 @@ router.post(
   }
 );
 
+// Obtener detalles de asistencia de una clase
+router.get("/clases/:id/asistencias", verificarToken, soloRol("profesor"), async (req, res) => {
+  const claseId = req.params.id;
+  
+  try {
+    // Busco la comisión a la que pertenece la clase
+    const [claseData] = await pool.execute(
+      "SELECT comision_id FROM clases WHERE id = ?",
+      [claseId]
+    );
+
+    if (claseData.length === 0) {
+      return res.status(404).json({ error: "Clase no encontrada" });
+    }
+
+    const comisionId = claseData[0].comision_id;
+
+    // Valido que el profesor tenga acceso a esa comisión
+    const [check] = await pool.execute(
+      "SELECT 1 FROM profesor_comision WHERE usuario_id = ? AND comision_id = ?",
+      [req.user.id, comisionId]
+    );
+
+    if (check.length === 0) {
+      return res.status(403).json({ error: "No tienes acceso a esta clase" });
+    }
+
+    // Busco todos los alumnos y marco si asistieron
+    const [alumnos] = await pool.execute(
+      `SELECT 
+         a.id,
+         a.apellido,
+         a.nombres,
+         CASE WHEN asis.alumno_id IS NOT NULL THEN 1 ELSE 0 END AS presente
+       FROM alumnos a
+       JOIN inscripciones i ON i.alumno_id = a.id
+       LEFT JOIN asistencias asis ON asis.alumno_id = a.id AND asis.clase_id = ?
+       WHERE i.comision_id = ?
+       ORDER BY a.apellido, a.nombres`,
+      [claseId, comisionId]
+    );
+
+    res.json(alumnos);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al obtener asistencias de la clase" });
+  }
+});
+
 module.exports = router;
