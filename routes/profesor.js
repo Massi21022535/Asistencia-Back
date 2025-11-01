@@ -323,4 +323,57 @@ router.get("/clases/:id/asistencias", verificarToken, soloRol("profesor"), async
   }
 });
 
+//notas de los alumnos
+router.post(
+  "/comisiones/:id/alumnos/:alumnoId/notas",
+  verificarToken,
+  soloRol("profesor"),
+  async (req, res) => {
+    const { id: comisionId, alumnoId } = req.params;
+    const { titulo, valor } = req.body;
+
+    try {
+      // validar acceso del profesor
+      const [check] = await pool.execute(
+        "SELECT 1 FROM profesor_comision WHERE usuario_id = ? AND comision_id = ?",
+        [req.user.id, comisionId]
+      );
+      if (check.length === 0) {
+        return res.status(403).json({ error: "No tienes acceso a esta comisión" });
+      }
+
+      await pool.execute(
+        "INSERT INTO notas (alumno_id, comision_id, titulo, valor) VALUES (?, ?, ?, ?)",
+        [alumnoId, comisionId, titulo, valor]
+      );
+
+      res.json({ message: "Nota registrada correctamente" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error al registrar nota" });
+    }
+  }
+);
+
+//listar las notas
+router.get(
+  "/comisiones/:id/alumnos/:alumnoId/notas",
+  verificarToken,
+  soloRol("profesor"),
+  async (req, res) => {
+    const { id: comisionId, alumnoId } = req.params;
+
+    try {
+      const [notas] = await pool.execute(
+        "SELECT id, titulo, valor, created_at FROM notas WHERE alumno_id = ? AND comision_id = ? ORDER BY created_at DESC",
+        [alumnoId, comisionId]
+      );
+      res.json(notas);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error al obtener notas" });
+    }
+  }
+);
+
 module.exports = router;
