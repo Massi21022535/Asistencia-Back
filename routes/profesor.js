@@ -376,4 +376,77 @@ router.get(
   }
 );
 
+// Editar nota de un alumno
+router.put(
+  "/comisiones/:id/alumnos/:alumnoId/notas/:notaId",
+  verificarToken,
+  soloRol("profesor"),
+  async (req, res) => {
+    const { id: comisionId, alumnoId, notaId } = req.params;
+    const { titulo, valor } = req.body;
+
+    try {
+      // validar acceso del profesor
+      const [check] = await pool.execute(
+        "SELECT 1 FROM profesor_comision WHERE usuario_id = ? AND comision_id = ?",
+        [req.user.id, comisionId]
+      );
+      if (check.length === 0) {
+        return res.status(403).json({ error: "No tienes acceso a esta comisión" });
+      }
+
+      // actualizar nota
+      const [result] = await pool.execute(
+        "UPDATE notas SET titulo = ?, valor = ? WHERE id = ? AND alumno_id = ? AND comision_id = ?",
+        [titulo, valor, notaId, alumnoId, comisionId]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Nota no encontrada" });
+      }
+
+      res.json({ message: "Nota actualizada correctamente" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error al actualizar nota" });
+    }
+  }
+);
+
+// Eliminar nota de un alumno
+router.delete(
+  "/comisiones/:id/alumnos/:alumnoId/notas/:notaId",
+  verificarToken,
+  soloRol("profesor"),
+  async (req, res) => {
+    const { id: comisionId, alumnoId, notaId } = req.params;
+
+    try {
+      // validar acceso del profesor
+      const [check] = await pool.execute(
+        "SELECT 1 FROM profesor_comision WHERE usuario_id = ? AND comision_id = ?",
+        [req.user.id, comisionId]
+      );
+      if (check.length === 0) {
+        return res.status(403).json({ error: "No tienes acceso a esta comisión" });
+      }
+
+      const [result] = await pool.execute(
+        "DELETE FROM notas WHERE id = ? AND alumno_id = ? AND comision_id = ?",
+        [notaId, alumnoId, comisionId]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Nota no encontrada" });
+      }
+
+      res.json({ message: "Nota eliminada correctamente" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error al eliminar nota" });
+    }
+  }
+);
+
+
 module.exports = router;
