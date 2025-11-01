@@ -376,4 +376,55 @@ router.get(
   }
 );
 
+// Obtener notas
+router.get("/comisiones/:comisionId/alumnos/:alumnoId/notas", verificarToken, soloRol("profesor"), async (req, res) => {
+  const { comisionId, alumnoId } = req.params;
+  try {
+    const [alumno] = await pool.execute(
+      `SELECT CONCAT(apellido, ', ', nombres) AS nombre FROM alumnos WHERE id = ?`,
+      [alumnoId]
+    );
+    const [notas] = await pool.execute(
+      `SELECT id, titulo, valor FROM notas WHERE alumno_id = ? AND comision_id = ? ORDER BY id DESC`,
+      [alumnoId, comisionId]
+    );
+    res.json({ alumno: alumno[0]?.nombre || "Alumno", notas });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al obtener las notas" });
+  }
+});
+
+// Agregar nota
+router.post("/comisiones/:comisionId/alumnos/:alumnoId/notas", verificarToken, soloRol("profesor"), async (req, res) => {
+  const { comisionId, alumnoId } = req.params;
+  const { titulo, valor } = req.body;
+  try {
+    await pool.execute(
+      `INSERT INTO notas (alumno_id, comision_id, titulo, valor) VALUES (?, ?, ?, ?)`,
+      [alumnoId, comisionId, titulo, valor]
+    );
+    res.json({ message: "Nota agregada correctamente" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al guardar la nota" });
+  }
+});
+
+// Eliminar nota
+router.delete("/comisiones/:comisionId/alumnos/:alumnoId/notas/:notaId", verificarToken, soloRol("profesor"), async (req, res) => {
+  const { comisionId, alumnoId, notaId } = req.params;
+  try {
+    await pool.execute(
+      `DELETE FROM notas WHERE id = ? AND alumno_id = ? AND comision_id = ?`,
+      [notaId, alumnoId, comisionId]
+    );
+    res.json({ message: "Nota eliminada correctamente" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al eliminar la nota" });
+  }
+});
+
+
 module.exports = router;
