@@ -83,7 +83,6 @@ router.post(
   soloRol("profesor"),
   async (req, res) => {
     const comisionId = req.params.id;
-    const fecha = new Date();
     const { manual, contenido } = req.body;
 
     try {
@@ -104,7 +103,7 @@ router.post(
       }
 
       const [result] = await pool.execute(
-        `INSERT INTO clases (comision_id, fecha, qr_token, contenido) VALUES (?, ?, ?, ?)`,
+        `INSERT INTO clases (comision_id, fecha, qr_token, contenido) VALUES (?, NOW(), ?, ?)`,
         [comisionId, fecha, qrToken, contenido || null]
       );
 
