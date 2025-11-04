@@ -13,6 +13,7 @@ const pool = mysql.createPool({
   port: process.env.DB_PORT || 3306,
   queueLimit: 0,
   timezone: "America/Argentina/Buenos_Aires",
+  dateStrings: true
 });
 
 module.exports = pool;
