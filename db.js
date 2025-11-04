@@ -12,7 +12,7 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   port: process.env.DB_PORT || 3306,
   queueLimit: 0,
-  timezone: "America/Argentina/Buenos_Aires",
+  timezone: "-03:00",
   dateStrings: true
 });
 
