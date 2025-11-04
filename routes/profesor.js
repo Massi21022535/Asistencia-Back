@@ -273,12 +273,12 @@ router.post(
   }
 );
 
-// Obtener detalles de asistencia de una clase
+//obtener detalles de asistencia de una clase
 router.get("/clases/:id/asistencias", verificarToken, soloRol("profesor"), async (req, res) => {
   const claseId = req.params.id;
   
   try {
-    // Busco la comisión a la que pertenece la clase
+    //busco la comisión a la que pertenece la clase
     const [claseData] = await pool.execute(
       "SELECT comision_id FROM clases WHERE id = ?",
       [claseId]
@@ -290,17 +290,17 @@ router.get("/clases/:id/asistencias", verificarToken, soloRol("profesor"), async
 
     const comisionId = claseData[0].comision_id;
 
-    // Valido que el profesor tenga acceso a esa comisión
+    //valido que el profesor tenga acceso a esa comisión
     const [check] = await pool.execute(
       "SELECT 1 FROM profesor_comision WHERE usuario_id = ? AND comision_id = ?",
       [req.user.id, comisionId]
     );
 
     if (check.length === 0) {
-      return res.status(403).json({ error: "No tienes acceso a esta clase" });
+      return res.status(403).json({ error: "No tenes acceso a esta clase" });
     }
 
-    // Busco todos los alumnos y marco si asistieron
+    //busco todos los alumnos y marco si asistieron
     const [alumnos] = await pool.execute(
       `SELECT 
          a.id,
@@ -338,7 +338,7 @@ router.post(
         [req.user.id, comisionId]
       );
       if (check.length === 0) {
-        return res.status(403).json({ error: "No tienes acceso a esta comisión" });
+        return res.status(403).json({ error: "No tenes acceso a esta comisión" });
       }
 
       await pool.execute(
@@ -385,16 +385,16 @@ router.put(
     const { titulo, valor } = req.body;
 
     try {
-      // validar acceso del profesor
+      //validar acceso del profesor
       const [check] = await pool.execute(
         "SELECT 1 FROM profesor_comision WHERE usuario_id = ? AND comision_id = ?",
         [req.user.id, comisionId]
       );
       if (check.length === 0) {
-        return res.status(403).json({ error: "No tienes acceso a esta comisión" });
+        return res.status(403).json({ error: "No tenes acceso a esta comisión" });
       }
 
-      // actualizar nota
+      //actualizar nota
       const [result] = await pool.execute(
         "UPDATE notas SET titulo = ?, valor = ? WHERE id = ? AND alumno_id = ? AND comision_id = ?",
         [titulo, valor, notaId, alumnoId, comisionId]
@@ -427,7 +427,7 @@ router.delete(
         [req.user.id, comisionId]
       );
       if (check.length === 0) {
-        return res.status(403).json({ error: "No tienes acceso a esta comisión" });
+        return res.status(403).json({ error: "No tenes acceso a esta comisión" });
       }
 
       const [result] = await pool.execute(
@@ -446,6 +446,5 @@ router.delete(
     }
   }
 );
-
 
 module.exports = router;
