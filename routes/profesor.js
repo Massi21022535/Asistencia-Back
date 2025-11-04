@@ -103,7 +103,7 @@ router.post(
       }
 
       const [result] = await pool.execute(
-        `INSERT INTO clases (comision_id, fecha, qr_token, contenido) VALUES (?, NOW(), ?, ?)`,
+        `INSERT INTO clases (comision_id, fecha, qr_token, contenido) VALUES (?, CONVERT_TZ(NOW(), 'UTC', '-03:00'), ?, ?)`,
         [comisionId, qrToken, contenido || null]
       );
 
