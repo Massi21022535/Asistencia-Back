@@ -83,6 +83,7 @@ router.post(
   soloRol("profesor"),
   async (req, res) => {
     const comisionId = req.params.id;
+    const fecha = new Date();
     const { manual, contenido } = req.body;
 
     try {
